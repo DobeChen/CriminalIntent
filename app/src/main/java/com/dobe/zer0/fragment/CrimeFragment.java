@@ -13,10 +13,12 @@ import android.widget.EditText;
 
 import com.dobe.zer0.criminalintent.R;
 import com.dobe.zer0.entity.Crime;
+import com.dobe.zer0.entity.CrimeLab;
 
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -28,6 +30,8 @@ import butterknife.OnTextChanged;
  */
 
 public class CrimeFragment extends Fragment {
+    private static final String CRIME_ID = "crime_id";
+
     private Crime mCrime;
 
     @BindView(R.id.crime_title)EditText mTextTitle;
@@ -39,7 +43,9 @@ public class CrimeFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         //get a Crime instance
-        mCrime = new Crime();
+//        UUID crimeId = (UUID) getActivity().getIntent().getSerializableExtra(CrimeActivity.CRIME_ID);
+        UUID crimeId = (UUID) getArguments().getSerializable(CRIME_ID);
+        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
     }
 
     @Override
@@ -54,7 +60,23 @@ public class CrimeFragment extends Fragment {
         mDateButton.setText(format.format(currentDate));
         mDateButton.setEnabled(false);
 
+        //init Title and Solved data
+        mTextTitle.setText(mCrime.getTitle());
+        mSolvedBox.setChecked(mCrime.isSolved());
+
         return view;
+    }
+
+    public static CrimeFragment newInstance(UUID crimeId){
+        //bind data to CrimeFragment
+        Bundle args = new Bundle();
+        args.putSerializable(CRIME_ID, crimeId);
+
+        //get a CrimeFragment instance
+        CrimeFragment crimeFragment = new CrimeFragment();
+        crimeFragment.setArguments(args);
+
+        return crimeFragment;
     }
 
     @OnTextChanged(value = R.id.crime_title, callback = OnTextChanged.Callback.BEFORE_TEXT_CHANGED)

@@ -1,5 +1,6 @@
 package com.dobe.zer0.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.dobe.zer0.criminalintent.CrimeActivity;
 import com.dobe.zer0.criminalintent.R;
 import com.dobe.zer0.entity.Crime;
 import com.dobe.zer0.entity.CrimeLab;
@@ -44,14 +46,25 @@ public class CrimeListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        updateUI();
+    }
+
     private void updateUI(){
         //get Crime List
         CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimeList = crimeLab.getCrimes();
 
-        //set Adapter to RecylerView
-        mAdapter = new CrimeAdapter(crimeList);
-        mCrimeListView.setAdapter(mAdapter);
+        if(mAdapter != null){
+            mAdapter.notifyDataSetChanged();
+        }else {
+            //set Adapter to RecylerView
+            mAdapter = new CrimeAdapter(crimeList);
+            mCrimeListView.setAdapter(mAdapter);
+        }
     }
 
     private class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -85,7 +98,11 @@ public class CrimeListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(getActivity(), mCrime.getTitle() + "been clicked.", Toast.LENGTH_LONG).show();
+            Intent intent = CrimeActivity.newIntent(getActivity(), mCrime.getId());
+            startActivity(intent);
+
+            //data on position 5 move to position 10
+//            mCrimeListView.getAdapter().notifyItemMoved(5, 10);
         }
     }
 
